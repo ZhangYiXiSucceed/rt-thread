@@ -21,11 +21,15 @@
 
 static rt_bool_t led_state = RT_FALSE;        /* Current LED state */
 int create_tester_hwtimer_thread(void);
-
+void tester_hwtimer_set_fre(int fre);
+static int led_blink_fre = 1;
+static rt_bool_t sw2_flag_g = RT_FALSE;
 /* Button interrupt callback function */
 void button_irq_callback(void *args)
 {
-    rt_kprintf("SW2 pressed\n");
+	  sw2_flag_g = RT_TRUE;
+    rt_kprintf("SW2 pressed,fre=%d\n",led_blink_fre);
+		led_blink_fre += 1;
 }
 
 int main(void)
@@ -59,7 +63,12 @@ int main(void)
 //        led_state = !led_state;
 
 //        rt_pin_write(LED_PIN, led_state ? PIN_HIGH : PIN_LOW);
-
+				if(sw2_flag_g)
+				{
+					sw2_flag_g = RT_FALSE;
+					tester_hwtimer_set_fre(led_blink_fre);
+				}
         rt_thread_mdelay(500);
+			  
     }
 }
